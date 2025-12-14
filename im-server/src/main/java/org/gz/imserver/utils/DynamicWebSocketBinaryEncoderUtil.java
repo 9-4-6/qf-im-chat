@@ -82,7 +82,7 @@ public class DynamicWebSocketBinaryEncoderUtil {
     public static void main(String[] args) {
         try {
             // 1. 定义动态入参（可根据业务需求任意修改）
-            int command = 0;
+            int command = 4;
             int version = 1;
             int messageType = 0;
             int clientType = 0;

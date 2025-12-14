@@ -33,14 +33,14 @@ public class ImMessageConsumer implements RocketMQListener<String> {
 
     @Override
     public void onMessage(String msg) {
-        log.info("接受到消息:{}",msg);
+        log.info("业务端接受到消息:{}",msg);
         JSONObject content = JSONUtil.parseObj(msg);
         Long userId = content.getLong("toId");
-        RMap<Long, String> userInstanceHash = redissonClient.getMap(RedisConstant.USER_INSTANCE_HASH_KEY);
-        String brokeId = userInstanceHash.get(userId);
+        RMap<Long, Integer> userInstanceHash = redissonClient.getMap(RedisConstant.USER_INSTANCE_HASH_KEY);
+        Integer brokeId = userInstanceHash.get(userId);
         //发送消息
-        String destination = MqConstant.IM_CHAT_SINGLE + brokeId;
-        rocketMqImTemplate.asyncSend(destination, content, new SendCallback() {
+        String destination = MqConstant.IM_CHAT_SINGLE + ":" + brokeId;
+        rocketMqImTemplate.asyncSend(destination, msg, new SendCallback() {
             @Override
             public void onSuccess(SendResult r) {}
             @Override

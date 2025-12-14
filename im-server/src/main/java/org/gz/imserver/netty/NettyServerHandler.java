@@ -15,24 +15,20 @@ import org.gz.imcommon.enums.SystemCommandEnum;
 import org.gz.imserver.manager.UserInstanceBindComponent;
 import org.gz.imserver.proto.Message;
 import org.gz.imserver.proto.MessageResponse;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
 
 /**
  * @author guozhong
  */
 @Slf4j
-@Component
 public class NettyServerHandler extends SimpleChannelInboundHandler<Message> {
-
     private final RocketMQTemplate rocketMqImTemplate;
     private final UserInstanceBindComponent userInstanceBindComponent;
-    @Value("${netty.server.brokerId}")
-    private  Integer brokerId;
-    public NettyServerHandler(@Qualifier("rocketMqImTemplate") RocketMQTemplate rocketMqImTemplate,
+    private final Integer brokerId;
+
+    public NettyServerHandler(Integer brokerId, RocketMQTemplate rocketMqImTemplate,
                               UserInstanceBindComponent userInstanceBindComponent) {
+        this.brokerId = brokerId;
         this.rocketMqImTemplate = rocketMqImTemplate;
         this.userInstanceBindComponent = userInstanceBindComponent;
     }
@@ -61,18 +57,19 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<Message> {
             userInstanceBindComponent.bindUser(userId,brokerId);
 
         }else if(command == MessageCommandEnum.MSG_P2P.getCommand()){
-            //接收人
-            Long toId = jsonObject.getLong("toId");
+            //登录
+            Long fromId = jsonObject.getLong("fromId");
             //消息内容
             String content = jsonObject.getStr("content");
             log.info("消息内容为：{}", content);
             MessageResponse<String> msgR = new MessageResponse<>();
             msgR.setCommand(MessageCommandEnum.MSG_ACK.getCommand());
             msgR.setData(content);
-            Channel channel = SessionSocketHolder.get(toId);
+            Channel channel = SessionSocketHolder.get(fromId);
             channel.writeAndFlush(msgR);
             //发送消息
-            rocketMqImTemplate.asyncSend("im-chat", jsonObject, new SendCallback() {
+            String message = JSONUtil.toJsonStr(msg.getMessageBody());
+            rocketMqImTemplate.asyncSend("im-chat",message, new SendCallback() {
                 @Override
                 public void onSuccess(SendResult r) {}
                 @Override

@@ -36,7 +36,43 @@
 ## 有序性
 
 消息中间件保证有序性
-                   
-## 测试
-![img.png](request.png)
-![img_1.png](console.png)
+
+## 项目配置
+* common.yml
+```yaml
+spring:
+  redis:
+    redisson:
+      config: |
+        singleServerConfig:
+          address: redis://192.168.0.107:6379
+          timeout: 3000
+
+rocketmq:
+  name-server: 192.168.0.107:9876
+```
+* im-server.yml
+```yaml
+server:
+  port: 8081
+
+netty:
+  server:
+    tcp-port: 9001
+    boss-thread-size: 1
+    work-thread-size: 4
+    heart-beat-time: 30000
+    broker-id: 1000
+```  
+* im-biz.yml
+```yaml
+server:
+  port: 8082
+``` 
+## 发消息测试
+* 用户A
+![img_1.png](img_1.png)
+* 用户B
+![img_2.png](img_2.png)
+* 控制台
+![img_3.png](img_3.png)

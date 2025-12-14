@@ -25,7 +25,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ChatServer {
     private final NettyProperties nettyProperties;
-    private final NettyServerHandler serverHandler;
+    private final NettyServerHandlerFactory nettyServerHandlerFactory;
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
     private Channel serverChannel;
@@ -33,9 +33,9 @@ public class ChatServer {
 
     // 注入配置
     public ChatServer(NettyProperties nettyProperties,
-                      NettyServerHandler serverHandler) {
+                      NettyServerHandlerFactory nettyServerHandlerFactory) {
         this.nettyProperties = nettyProperties;
-        this.serverHandler = serverHandler;
+        this.nettyServerHandlerFactory = nettyServerHandlerFactory;
         // 校验配置
         validateConfig();
     }
@@ -79,7 +79,7 @@ public class ChatServer {
                             pipeline.addLast(new WebSocketServerProtocolHandler("/chat"));
                             pipeline.addLast(new WebSocketMessageDecoder());
                             pipeline.addLast(new WebSocketMessageEncoder());
-                            pipeline.addLast(serverHandler);
+                            pipeline.addLast(nettyServerHandlerFactory.createHandler());
                         }
                     });
 

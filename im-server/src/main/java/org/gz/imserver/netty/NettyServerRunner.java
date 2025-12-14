@@ -17,9 +17,9 @@ public class NettyServerRunner implements CommandLineRunner , DisposableBean {
 
     private final ChatServer chatServer;
     private final MessageReceiver messageReceiver;
-    public NettyServerRunner(ChatServer chatServer){
+    public NettyServerRunner(ChatServer chatServer, MessageReceiver messageReceiver) {
         this.chatServer = chatServer;
-        this.messageReceiver = new MessageReceiver();
+        this.messageReceiver = messageReceiver;
     }
 
     @Override
